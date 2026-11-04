@@ -27,7 +27,7 @@ export function Header({ onStart }: { onStart: () => void }) {
           <a href="#how" className="hover:text-black">How it works</a>
           <a href="#integrations" className="hover:text-black">Integrations</a>
           <a href="#faq" className="hover:text-black">FAQ</a>
-          <Link to="/chatgpt" className="hover:text-black">Live demo</Link>
+          <Link to="/chatgpt" data-tour="live-demo" className="hover:text-black">Live demo</Link>
         </nav>
         <div className="flex items-center gap-2">
           <Link to="/dashboard" className="hidden text-sm font-medium text-black/70 hover:text-black sm:inline">Log in</Link>
@@ -54,10 +54,10 @@ export function Hero({ onStart }: { onStart: () => void }) {
             People already ask ChatGPT for a barber, a table, something to do this weekend. List your services and events once with Wix and show up with live availability and one-tap booking. Keep the tools you use today. No website required.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            <button type="button" onClick={onStart} className="btn-primary">
+            <button type="button" onClick={onStart} data-tour="get-listed" className="btn-primary">
               Get listed free <ArrowRight className="size-4" />
             </button>
-            <Link to="/chatgpt" className="btn-secondary">
+            <Link to="/chatgpt" data-tour="try-demo" className="btn-secondary">
               Try the ChatGPT demo
             </Link>
           </div>

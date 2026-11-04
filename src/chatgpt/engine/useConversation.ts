@@ -39,6 +39,7 @@ export function useConversation() {
     }
   }, []);
   const [fullscreenEvent, setFullscreenEvent] = useState<string | null>(null);
+  const [fullscreenMenu, setFullscreenMenu] = useState<string | null>(null);
 
   const pendingIntent = useRef<Intent | null>(null);
   const runId = useRef(0);
@@ -282,6 +283,9 @@ export function useConversation() {
         case "open-fullscreen":
           setFullscreenEvent(action.eventId);
           return;
+        case "view-menu":
+          setFullscreenMenu(action.restaurantId);
+          return;
         case "checkout": {
           const e = EVENTS.find((x) => x.id === action.eventId)!;
           const tier = e.tiers.find((t) => t.id === action.tierId)!;
@@ -339,6 +343,7 @@ export function useConversation() {
     runId.current++;
     setBusy(false);
     setFullscreenEvent(null);
+    setFullscreenMenu(null);
     setActiveId(id);
     activeRef.current = id;
   }, []);
@@ -350,7 +355,11 @@ export function useConversation() {
     busy,
     connected,
     fullscreenEvent,
-    closeFullscreen: () => setFullscreenEvent(null),
+    fullscreenMenu,
+    closeFullscreen: () => {
+      setFullscreenEvent(null);
+      setFullscreenMenu(null);
+    },
     disconnect: () => setConnected(false),
     send,
     act,

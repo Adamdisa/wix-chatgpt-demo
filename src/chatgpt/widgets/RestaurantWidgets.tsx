@@ -1,11 +1,13 @@
-import { CalendarPlus, Check, MapPin, Navigation, Users } from "lucide-react";
+import { CalendarPlus, Check, Clock, MapPin, Navigation, Users, X } from "lucide-react";
 import { useState } from "react";
 
-import { RESTAURANTS } from "../../data/catalog";
+import { MENUS, RESTAURANTS } from "../../data/catalog";
 import { longDate, nextDays, shortDate, shortDay } from "../../lib/cn";
 import { downloadIcs } from "../../lib/ics";
 import type { WidgetAction } from "../engine/types";
+import { WixMark } from "../WixMark";
 import { Button, Carousel, CarouselCard, Chip, Field, Frame, Meta, Rating, Stepper, Tag, inputClass } from "./primitives";
+import { cn, formatMoney } from "../../lib/cn";
 
 const DINNER_SLOTS = ["18:30", "19:00", "19:30", "20:00", "20:30", "21:00", "21:30"];
 const full = new Set(["20:00", "20:30"]);
@@ -96,7 +98,7 @@ export function ReserveCard({ restaurantId, dateISO, party: initialParty, onAct,
         </Field>
       </div>
       <div className="flex gap-2 border-t border-subtle p-3">
-        <Button color="secondary" variant="outline">
+        <Button color="secondary" variant="outline" onClick={() => onAct({ type: "view-menu", restaurantId: r.id })}>
           View menu
         </Button>
         <Button
@@ -139,5 +141,100 @@ export function ReservationConfirmedCard({ restaurantId, dateISO, time, party }:
         </Button>
       </div>
     </Frame>
+  );
+}
+
+/**
+ * Menu in ChatGPT's fullscreen display mode. Widgets can't embed third-party sites in an iframe
+ * (the widget CSP only allows whitelisted asset domains), so the menu is rendered from data Wix
+ * already has, the way the event ticket picker is. The system composer and chat snippet stay visible.
+ */
+export function MenuFullscreen({ restaurantId, onClose, lastAssistantText }: { restaurantId: string; onClose: () => void; lastAssistantText?: string }) {
+  const r = RESTAURANTS.find((x) => x.id === restaurantId)!;
+  const sections = MENUS[r.id] ?? MENUS.delfina;
+  const [active, setActive] = useState(sections[0].title);
+
+  return (
+    <div className="absolute inset-0 z-30 flex flex-col bg-surface">
+      <header className="flex h-14 items-center gap-3 border-b border-subtle px-4">
+        <WixMark size={24} />
+        <div className="min-w-0 flex-1">
+          <div className="text-sm font-semibold">Wix</div>
+          <div className="truncate text-xs text-secondary">{r.name} · Menu</div>
+        </div>
+        <button type="button" onClick={onClose} aria-label="Close" className="inline-flex size-9 items-center justify-center rounded-full hover:bg-surface-secondary">
+          <X className="size-5" />
+        </button>
+      </header>
+
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        <div className="mx-auto max-w-3xl p-4 md:p-8">
+          <div className="flex gap-4">
+            <img src={r.image} alt="" className="size-20 shrink-0 rounded-2xl object-cover md:size-24" />
+            <div className="min-w-0">
+              <h1 className="text-2xl font-semibold tracking-tight">{r.name}</h1>
+              <p className="mt-0.5 text-sm text-secondary">
+                {r.cuisine} · {r.neighborhood} · {r.price}
+              </p>
+              <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+                <Rating value={r.rating} count={r.reviews} />
+                <Meta icon={<Clock />}>Open until 23:30</Meta>
+              </div>
+            </div>
+          </div>
+
+          <div className="scrollbar-none sticky top-0 z-10 -mx-4 mt-6 flex gap-2 overflow-x-auto bg-surface px-4 py-2 md:-mx-8 md:px-8">
+            {sections.map((sec) => (
+              <Chip
+                key={sec.title}
+                selected={sec.title === active}
+                onClick={() => {
+                  setActive(sec.title);
+                  document.getElementById(`menu-${sec.title}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
+                className="shrink-0"
+              >
+                {sec.title}
+              </Chip>
+            ))}
+          </div>
+
+          <div className="mt-2 space-y-8">
+            {sections.map((sec) => (
+              <section key={sec.title} id={`menu-${sec.title}`} className="scroll-mt-16">
+                <h2 className="mb-3 text-lg font-semibold">{sec.title}</h2>
+                <ul className="divide-y divide-[color:var(--color-border-subtle)] rounded-2xl border border-default">
+                  {sec.items.map((it) => (
+                    <li key={it.name} className="flex items-start gap-4 px-4 py-3">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium">{it.name}</span>
+                          {it.tag ? <Tag tone={it.tag === "Popular" ? "success" : it.tag === "Spicy" ? "warning" : "neutral"}>{it.tag}</Tag> : null}
+                        </div>
+                        <p className="mt-0.5 text-sm text-secondary">{it.desc}</p>
+                      </div>
+                      <span className={cn("shrink-0 text-sm tabular-nums")}>{formatMoney(it.price, "ILS")}</span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ))}
+          </div>
+          <p className="mt-6 text-xs text-tertiary">Menu synced from Wix Restaurants. Prices include VAT; a 12% service charge is added to the bill.</p>
+        </div>
+      </div>
+
+      <footer className="border-t border-subtle bg-surface px-4 py-3">
+        <div className="mx-auto flex max-w-3xl flex-col gap-2">
+          <div className="flex items-center justify-between gap-3 rounded-xl bg-surface-secondary px-3 py-2 text-sm">
+            <span className="min-w-0 truncate text-secondary">{lastAssistantText ?? `Next table at ${r.name}: ${r.nextTable}`}</span>
+            <Button color="primary" size="sm" onClick={onClose}>
+              Back to reservation
+            </Button>
+          </div>
+          <div className="flex h-12 items-center rounded-full border border-default bg-surface px-4 text-sm text-tertiary">Ask anything about the menu…</div>
+        </div>
+      </footer>
+    </div>
   );
 }

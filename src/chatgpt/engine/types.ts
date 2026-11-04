@@ -70,6 +70,7 @@ export type WidgetAction =
   | { type: "checkout"; eventId: string; tierId: string; qty: number; section?: string }
   | { type: "pay"; eventId: string; tierId: string; qty: number; section?: string; method: string }
   | { type: "select-restaurant"; restaurantId: string }
+  | { type: "view-menu"; restaurantId: string }
   | { type: "confirm-reservation"; restaurantId: string; dateISO: string; time: string; party: number }
   | { type: "chip"; text: string }
   | { type: "open-fullscreen"; eventId: string }

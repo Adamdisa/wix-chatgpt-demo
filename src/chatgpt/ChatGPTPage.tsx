@@ -3,12 +3,14 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router";
 
 import { cn } from "../lib/cn";
+import { Tour } from "../lib/Tour";
 import { useTheme } from "../lib/useTheme";
 import { Composer } from "./Composer";
 import { STARTER_PROMPTS, useConversation } from "./engine/useConversation";
 import { MessageList } from "./Messages";
 import { Sidebar } from "./Sidebar";
 import { EventFullscreen } from "./widgets/EventWidgets";
+import { MenuFullscreen } from "./widgets/RestaurantWidgets";
 import { SuggestionChips } from "./widgets/SuggestionChips";
 
 export function ChatGPTPage() {
@@ -18,6 +20,9 @@ export function ChatGPTPage() {
   const [showExamples, setShowExamples] = useState(false);
   const [params, setParams] = useSearchParams();
   const prefill = params.get("prompt") ?? undefined;
+  // Shown on every visit; the deep-link variant points at the examples toggle instead of the chips.
+  const [tour, setTour] = useState(true);
+  const [tourMode] = useState<"empty" | "deeplink">(() => (params.get("prompt") ? "deeplink" : "empty"));
 
   useEffect(() => {
     document.title = "ChatGPT";
@@ -75,7 +80,7 @@ export function ChatGPTPage() {
             <div className="w-full max-w-3xl">
               <Composer onSend={chat.send} disabled={chat.busy} connected={chat.connected} autoFocus size="lg" initialValue={prefill} />
             </div>
-            <div className="mt-5 w-full max-w-3xl">
+            <div className="mt-5 w-full max-w-3xl" data-tour="prompts">
               <p className="mb-3 text-center text-xs text-tertiary">Try an example, or type your own. Wix is connected as an app, so ChatGPT can book, reserve and buy tickets for you.</p>
               <SuggestionChips large chips={STARTER_PROMPTS.map((p) => p.text)} onPick={chat.send} />
             </div>
@@ -92,6 +97,7 @@ export function ChatGPTPage() {
                     type="button"
                     onClick={() => setShowExamples((v) => !v)}
                     aria-expanded={showExamples}
+                    data-tour="examples-toggle"
                     className="inline-flex items-center gap-1.5 rounded-full border border-default px-3 py-1.5 text-xs font-medium text-secondary transition hover:bg-surface-secondary hover:text-[color:var(--color-text)]"
                   >
                     {showExamples ? <X className="size-3.5" /> : <Sparkles className="size-3.5" />}
@@ -115,6 +121,33 @@ export function ChatGPTPage() {
         )}
 
         {chat.fullscreenEvent ? <EventFullscreen eventId={chat.fullscreenEvent} onAct={chat.act} onClose={chat.closeFullscreen} lastAssistantText={lastAssistantText} /> : null}
+        {chat.fullscreenMenu ? <MenuFullscreen restaurantId={chat.fullscreenMenu} onClose={chat.closeFullscreen} lastAssistantText={lastAssistantText} /> : null}
+        {tour ? (
+          <Tour
+            onFinish={() => setTour(false)}
+            steps={
+              tourMode === "empty"
+                ? [
+                    {
+                      target: '[data-tour="prompts"]',
+                      title: "Start with an example prompt",
+                      body: "Each one plays a full flow: a haircut booking, concert tickets through checkout, or a dinner reservation. Wix is connected as an app, so ChatGPT books through it. You can also type your own and mention @Wix.",
+                      cta: "Got it",
+                      placement: "top",
+                    },
+                  ]
+                : [
+                    {
+                      target: '[data-tour="examples-toggle"]',
+                      title: "More to try after this one",
+                      body: "This prompt came from the landing page and is playing out now. When it's done, open the example prompts here for tickets, reservations and more.",
+                      cta: "Got it",
+                      placement: "top",
+                    },
+                  ]
+            }
+          />
+        ) : null}
       </main>
     </div>
   );

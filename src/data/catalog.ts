@@ -283,6 +283,82 @@ export interface Restaurant {
   tags: string[];
 }
 
+export interface MenuItem {
+  name: string;
+  desc: string;
+  price: number;
+  tag?: "Popular" | "Vegan" | "Spicy" | "New";
+}
+export interface MenuSection {
+  title: string;
+  items: MenuItem[];
+}
+
+/** Menus synced from Wix Restaurants, shown in the fullscreen menu view. */
+export const MENUS: Record<string, MenuSection[]> = {
+  tonys: [
+    { title: "By the slice", items: [
+      { name: "Margherita", desc: "San Marzano tomato, fior di latte, basil", price: 22, tag: "Popular" },
+      { name: "Patate e rosmarino", desc: "Thin potato, rosemary, sea salt, no cheese", price: 24, tag: "Vegan" },
+      { name: "Nduja & honey", desc: "Calabrian nduja, hot honey, pecorino", price: 28, tag: "Spicy" },
+    ] },
+    { title: "Starters", items: [
+      { name: "Suppli", desc: "Fried rice ball, ragu, mozzarella", price: 18 },
+      { name: "Burrata", desc: "Puglian burrata, cherry tomatoes, olive oil", price: 42 },
+    ] },
+    { title: "Drinks", items: [
+      { name: "House red", desc: "Montepulciano, glass", price: 34 },
+      { name: "Chinotto", desc: "Lurisia, bottle", price: 14 },
+    ] },
+  ],
+  delfina: [
+    { title: "Antipasti", items: [
+      { name: "Insalata tricolore", desc: "Arugula, radicchio, endive, parmigiano", price: 46 },
+      { name: "Meatballs", desc: "Beef and pork, tomato sugo, grilled bread", price: 52, tag: "Popular" },
+      { name: "Broccoli di ciccio", desc: "Charred, chili, lemon", price: 38, tag: "Vegan" },
+    ] },
+    { title: "Pizze", items: [
+      { name: "Margherita", desc: "Tomato, fior di latte, basil", price: 58 },
+      { name: "Salsiccia", desc: "Fennel sausage, tomato, bell pepper, onion", price: 72, tag: "Popular" },
+      { name: "Funghi", desc: "Roasted mushrooms, fontina, thyme", price: 68 },
+      { name: "Diavola", desc: "Spicy salami, chili oil, mozzarella", price: 70, tag: "Spicy" },
+    ] },
+    { title: "Dolci", items: [
+      { name: "Tiramisu", desc: "Classic, made this morning", price: 36 },
+      { name: "Affogato", desc: "Vanilla gelato, espresso", price: 28 },
+    ] },
+  ],
+  golden: [
+    { title: "Squares", items: [
+      { name: "Cheese square", desc: "Thick crust, aged mozzarella, tomato", price: 26, tag: "Popular" },
+      { name: "Pepperoni square", desc: "Cup-and-char pepperoni", price: 30 },
+      { name: "Clam & garlic", desc: "Whole clams, garlic butter, parsley", price: 34, tag: "New" },
+    ] },
+    { title: "Sides", items: [
+      { name: "Garlic knots", desc: "Six, parmesan, parsley", price: 20 },
+      { name: "Caesar", desc: "Romaine, anchovy dressing, croutons", price: 38 },
+    ] },
+    { title: "Drinks", items: [
+      { name: "Lager", desc: "Goldstar, pint", price: 30 },
+      { name: "Lemonade", desc: "Fresh, mint", price: 16 },
+    ] },
+  ],
+  star: [
+    { title: "Deep dish", items: [
+      { name: "The Classic", desc: "Cornmeal crust, mozzarella, chunky tomato", price: 84, tag: "Popular" },
+      { name: "Little Star", desc: "Spinach, ricotta, feta, mushrooms, onions, garlic", price: 92 },
+      { name: "Meat lover", desc: "Sausage, pepperoni, bacon", price: 98 },
+    ] },
+    { title: "Thin crust", items: [
+      { name: "Margherita", desc: "Tomato, mozzarella, basil", price: 64 },
+      { name: "Veggie", desc: "Roasted peppers, zucchini, olives", price: 68, tag: "Vegan" },
+    ] },
+    { title: "Desserts", items: [
+      { name: "Chocolate chip cookie", desc: "Skillet-baked, vanilla ice cream", price: 34 },
+    ] },
+  ],
+};
+
 export const RESTAURANTS: Restaurant[] = [
   {
     id: "tonys",

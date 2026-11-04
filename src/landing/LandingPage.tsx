@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 
 import { useForceLight } from "../lib/useTheme";
-import { DemoGuide } from "./DemoGuide";
+import { Tour } from "../lib/Tour";
 import { OnboardingFlow } from "./onboarding/OnboardingFlow";
 import { Benefits, FAQ, FinalCta, Footer, Header, Hero, HowItWorks, Integrations, ListingTypes, LogoStrip } from "./sections";
 
@@ -14,12 +15,14 @@ export function LandingPage() {
   }, []);
 
   const start = () => setOnboarding(true);
+  const navigate = useNavigate();
+  // Shown on every visit; visitors can skip it.
+  const [tour, setTour] = useState(true);
 
   return (
     <div className="lp min-h-dvh">
       <Header onStart={start} />
       <main>
-        <DemoGuide onStart={start} />
         <Hero onStart={start} />
         <LogoStrip />
         <HowItWorks onStart={start} />
@@ -31,6 +34,27 @@ export function LandingPage() {
       </main>
       <Footer />
       {onboarding ? <OnboardingFlow onClose={() => setOnboarding(false)} /> : null}
+      {tour && !onboarding ? (
+        <Tour
+          onFinish={() => setTour(false)}
+          steps={[
+            {
+              target: '[data-tour="get-listed"]',
+              title: "This is a prototype with two sides",
+              body: "Start with the business side. Get listed free walks a barber shop through onboarding: sign up, connect a bookings tool like Calendly and an events tool like Eventbrite, review what synced, publish.",
+              cta: "Next",
+            },
+            {
+              target: ['[data-tour="live-demo"]', '[data-tour="try-demo"]'],
+              title: "Then see it from the customer's side",
+              body: "Live demo opens a mock ChatGPT with Wix connected as an app. Ask it to book a haircut, buy concert tickets or reserve a table, and watch Wix handle it inside the chat.",
+              cta: "Open live demo",
+              onCta: () => navigate("/chatgpt"),
+              secondary: "Stay here",
+            },
+          ]}
+        />
+      ) : null}
     </div>
   );
 }
