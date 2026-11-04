@@ -40,8 +40,8 @@ export function LandingPage() {
           steps={[
             {
               target: '[data-tour="get-listed"]',
-              title: "This page is for businesses not yet on Wix",
-              body: "A quick sign-up that makes them visible to AI agents like ChatGPT, so they get more bookings and ticket sales. Get listed free walks a barber shop through it: connect a bookings tool like Calendly and an events tool like Eventbrite, review what synced, publish.",
+              title: "What this page is",
+              body: "A landing page for businesses that aren't on Wix. The pitch: sign up in a couple of minutes, connect the booking tool and events tool you already use (Calendly, Square, Eventbrite, Luma…), and Wix lists you inside ChatGPT so people can find, book and buy from you there. No site needed. Click Get listed free to walk through the onboarding as a barber shop would see it: sign-up, business details, connect tools, review what synced, publish.",
               cta: "Next",
             },
             {
