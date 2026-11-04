@@ -40,8 +40,8 @@ export function LandingPage() {
           steps={[
             {
               target: '[data-tour="get-listed"]',
-              title: "This is a prototype with two sides",
-              body: "Start with the business side. Get listed free walks a barber shop through onboarding: sign up, connect a bookings tool like Calendly and an events tool like Eventbrite, review what synced, publish.",
+              title: "This page is for businesses not yet on Wix",
+              body: "A quick sign-up that makes them visible to AI agents like ChatGPT, so they get more bookings and ticket sales. Get listed free walks a barber shop through it: connect a bookings tool like Calendly and an events tool like Eventbrite, review what synced, publish.",
               cta: "Next",
             },
             {
