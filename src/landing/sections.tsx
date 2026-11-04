@@ -44,8 +44,8 @@ export function Hero({ onStart }: { onStart: () => void }) {
   return (
     <section id="top" className="relative overflow-hidden">
       <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[640px] bg-[radial-gradient(60%_60%_at_70%_10%,rgba(17,109,255,0.10),transparent_70%)]" />
-      <div className="mx-auto grid max-w-7xl items-center gap-12 px-5 pt-16 pb-20 sm:px-8 lg:grid-cols-[1fr_1.05fr] lg:pt-24">
-        <div className="min-w-0">
+      <div className="mx-auto grid max-w-7xl items-start gap-12 px-5 pt-16 pb-20 sm:px-8 lg:grid-cols-[1fr_1.05fr] lg:pt-24">
+        <div className="min-w-0 lg:mt-16">
           <p className="eyebrow mb-5">Wix × ChatGPT</p>
           <h1 className="display text-5xl leading-[1.02] font-extrabold tracking-tight text-wix-ink sm:text-6xl lg:text-[68px]">
             Get booked <span className="text-wix">in ChatGPT.</span>
