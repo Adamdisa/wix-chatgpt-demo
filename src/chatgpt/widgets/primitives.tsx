@@ -78,17 +78,23 @@ export function Stepper({ value, min = 1, max = 10, onChange, label }: { value: 
   );
 }
 
-export function CheckRow({ checked, onToggle, title, meta, trailing }: { checked: boolean; onToggle: () => void; title: string; meta?: string; trailing?: ReactNode }) {
+export function CheckRow({ checked, onToggle, title, meta, trailing, radio }: { checked: boolean; onToggle: () => void; title: string; meta?: string; trailing?: ReactNode; radio?: boolean }) {
   return (
     <button
       type="button"
       onClick={onToggle}
-      aria-pressed={checked}
+      role={radio ? "radio" : undefined}
+      aria-checked={radio ? checked : undefined}
+      aria-pressed={radio ? undefined : checked}
       className={cn("flex w-full items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition", checked ? "border-strong bg-surface-secondary" : "border-default hover:bg-surface-secondary")}
     >
-      <span className={cn("inline-flex size-5 shrink-0 items-center justify-center rounded-md border", checked ? "border-transparent bg-primary-solid text-primary-solid" : "border-strong")}>
-        {checked ? <Check className="size-3.5" /> : null}
-      </span>
+      {radio ? (
+        <span className={cn("inline-flex size-5 shrink-0 items-center justify-center rounded-full border", checked ? "border-[6px] border-[color:var(--color-text)]" : "border-strong")} />
+      ) : (
+        <span className={cn("inline-flex size-5 shrink-0 items-center justify-center rounded-md border", checked ? "border-transparent bg-primary-solid text-primary-solid" : "border-strong")}>
+          {checked ? <Check className="size-3.5" /> : null}
+        </span>
+      )}
       <span className="min-w-0 flex-1">
         <span className="block truncate text-sm font-medium">{title}</span>
         {meta ? <span className="block text-xs text-secondary">{meta}</span> : null}

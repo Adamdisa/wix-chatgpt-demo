@@ -41,10 +41,10 @@ export function BarberBookingCard({ barberId, dateISO, preferredTime, onAct, dis
   const [date, setDate] = useState(dateISO);
   const [time, setTime] = useState(preferredTime && !unavailable.has(preferredTime) ? preferredTime : "15:30");
   const [staff, setStaff] = useState("Any");
-  const [services, setServices] = useState<string[]>([b.services[0].id]);
+  const [serviceId, setServiceId] = useState(b.services[0].id);
   const [done, setDone] = useState(false);
 
-  const chosen = b.services.filter((s) => services.includes(s.id));
+  const chosen = b.services.filter((s) => s.id === serviceId);
   const total = chosen.reduce((n, s) => n + s.price, 0);
   const minutes = chosen.reduce((n, s) => n + s.minutes, 0);
   const locked = disabled || done;
@@ -68,12 +68,13 @@ export function BarberBookingCard({ barberId, dateISO, preferredTime, onAct, dis
       <div className="space-y-4 border-t border-subtle p-4">
         <section>
           <h4 className="mb-2 text-xs font-medium text-secondary">Service</h4>
-          <div className="space-y-1.5">
+          <div role="radiogroup" aria-label="Service" className="space-y-1.5">
             {b.services.map((s) => (
               <CheckRow
                 key={s.id}
-                checked={services.includes(s.id)}
-                onToggle={() => !locked && setServices((prev) => (prev.includes(s.id) ? (prev.length > 1 ? prev.filter((x) => x !== s.id) : prev) : [...prev, s.id]))}
+                radio
+                checked={s.id === serviceId}
+                onToggle={() => !locked && setServiceId(s.id)}
                 title={s.name}
                 meta={`${s.minutes} min`}
                 trailing={formatMoney(s.price, "ILS")}
@@ -136,7 +137,7 @@ export function BarberBookingCard({ barberId, dateISO, preferredTime, onAct, dis
             disabled={locked}
             onClick={() => {
               setDone(true);
-              onAct({ type: "confirm-booking", barberId: b.id, serviceIds: services, dateISO: date, time, staff });
+              onAct({ type: "confirm-booking", barberId: b.id, serviceIds: [serviceId], dateISO: date, time, staff });
             }}
           >
             {done ? "Booked" : "Confirm booking"}

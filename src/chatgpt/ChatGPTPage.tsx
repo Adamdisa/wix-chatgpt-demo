@@ -1,4 +1,4 @@
-import { ChevronDown, Share, SlidersHorizontal } from "lucide-react";
+import { ChevronDown, Share, SlidersHorizontal, Sparkles, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router";
 
@@ -15,6 +15,7 @@ export function ChatGPTPage() {
   const chat = useConversation();
   const { theme, toggle } = useTheme();
   const [collapsed, setCollapsed] = useState(false);
+  const [showExamples, setShowExamples] = useState(false);
   const [params, setParams] = useSearchParams();
   const prefill = params.get("prompt") ?? undefined;
 
@@ -75,6 +76,7 @@ export function ChatGPTPage() {
               <Composer onSend={chat.send} disabled={chat.busy} connected={chat.connected} autoFocus size="lg" initialValue={prefill} />
             </div>
             <div className="mt-5 w-full max-w-3xl">
+              <p className="mb-3 text-center text-xs text-tertiary">Try an example, or type your own. Wix is connected as an app, so ChatGPT can book, reserve and buy tickets for you.</p>
               <SuggestionChips large chips={STARTER_PROMPTS.map((p) => p.text)} onPick={chat.send} />
             </div>
           </div>
@@ -85,6 +87,26 @@ export function ChatGPTPage() {
             </div>
             <div className={cn("shrink-0 px-4 pb-3")}>
               <div className="mx-auto max-w-3xl">
+                <div className="mb-2 flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowExamples((v) => !v)}
+                    aria-expanded={showExamples}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-default px-3 py-1.5 text-xs font-medium text-secondary transition hover:bg-surface-secondary hover:text-[color:var(--color-text)]"
+                  >
+                    {showExamples ? <X className="size-3.5" /> : <Sparkles className="size-3.5" />}
+                    {showExamples ? "Hide example prompts" : "Show example prompts"}
+                  </button>
+                  {showExamples ? (
+                    <SuggestionChips
+                      chips={STARTER_PROMPTS.map((p) => p.text)}
+                      onPick={(t) => {
+                        setShowExamples(false);
+                        chat.send(t);
+                      }}
+                    />
+                  ) : null}
+                </div>
                 <Composer onSend={chat.send} disabled={chat.busy} connected={chat.connected} autoFocus />
                 <p className="mt-2 text-center text-xs text-tertiary">ChatGPT can make mistakes. Check important info.</p>
               </div>
