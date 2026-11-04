@@ -1,0 +1,141 @@
+@import "tailwindcss";
+@import "@openai/apps-sdk-ui/css";
+@source "../node_modules/@openai/apps-sdk-ui";
+
+/* Wix brand font for the landing page only. ChatGPT surfaces keep the system stack. */
+@import url("https://fonts.googleapis.com/css2?family=Wix+Madefor+Display:wght@400;500;600;700;800&family=Wix+Madefor+Text:wght@400;500;600;700&display=swap");
+
+@theme {
+  --color-wix: #116dff;
+  --color-wix-hover: #0d5ce0;
+  --color-wix-ink: #0d0d0d;
+  --font-madefor: "Wix Madefor Display", ui-sans-serif, system-ui, sans-serif;
+  --font-madefor-text: "Wix Madefor Text", ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* --- ChatGPT mock helpers --------------------------------------------- */
+
+.scrollbar-none {
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+.shimmer-text {
+  background: linear-gradient(
+    90deg,
+    var(--color-text-tertiary) 0%,
+    var(--color-text) 50%,
+    var(--color-text-tertiary) 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 1.6s linear infinite;
+}
+
+@keyframes typing-dot {
+  0%,
+  80%,
+  100% {
+    transform: scale(0.6);
+    opacity: 0.4;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.typing-dot {
+  animation: typing-dot 1.2s infinite ease-in-out;
+}
+.typing-dot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.typing-dot:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+/* Widget frame: ChatGPT draws a hairline border around app surfaces that ask for one. */
+.widget-frame {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-2xl);
+  background: var(--color-surface);
+  overflow: hidden;
+}
+
+/* --- Landing page -------------------------------------------------------- */
+
+.lp {
+  font-family: var(--font-madefor-text);
+  color: #0d0d0d;
+  background: #ffffff;
+  color-scheme: light;
+}
+.lp h1,
+.lp h2,
+.lp h3,
+.lp .display {
+  font-family: var(--font-madefor);
+  letter-spacing: -0.02em;
+}
+.lp .btn-primary {
+  @apply inline-flex items-center justify-center gap-2 rounded-full bg-wix-ink px-6 py-3 text-base font-semibold text-white transition hover:bg-black/85 focus:outline-none focus-visible:ring-2 focus-visible:ring-wix focus-visible:ring-offset-2;
+}
+.lp .btn-secondary {
+  @apply inline-flex items-center justify-center gap-2 rounded-full border border-black/15 bg-white px-6 py-3 text-base font-semibold text-wix-ink transition hover:border-black/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-wix focus-visible:ring-offset-2;
+}
+.lp .btn-wix {
+  @apply inline-flex items-center justify-center gap-2 rounded-full bg-wix px-6 py-3 text-base font-semibold text-white transition hover:bg-wix-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-wix focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40;
+}
+.lp .field {
+  @apply w-full rounded-xl border border-black/15 bg-white px-4 py-3 text-base text-wix-ink outline-none transition placeholder:text-black/40 focus:border-wix focus:ring-2 focus:ring-wix/20;
+}
+.lp .eyebrow {
+  @apply text-xs font-semibold uppercase tracking-[0.18em] text-black/50;
+}
+
+@keyframes float-y {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+.float-y {
+  animation: float-y 6s ease-in-out infinite;
+}
