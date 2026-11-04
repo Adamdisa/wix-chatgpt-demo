@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowLeft, ArrowRight, Calendar, Check, ExternalLink, Eye, EyeOff, Loader2, Lock, Sparkles, Ticket, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Calendar, Check, ExternalLink, Eye, EyeOff, Loader2, Lock, RotateCcw, Sparkles, Ticket, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router";
 
@@ -218,7 +218,7 @@ function ProviderGrid({ items, selected, onSelect }: { items: Provider[]; select
 /* -------------------------------------------------------------- the flow */
 
 export function OnboardingFlow({ onClose }: { onClose: () => void }) {
-  const { state, update } = useOnboardingState();
+  const { state, update, reset } = useOnboardingState();
   const [step, setStep] = useState<StepId>(state.publishedAt ? "live" : "account");
   const [oauth, setOauth] = useState<Provider | null>(null);
   const [syncing, setSyncing] = useState<Provider | null>(null);
@@ -449,6 +449,16 @@ export function OnboardingFlow({ onClose }: { onClose: () => void }) {
                 Go to dashboard
               </Link>
             </div>
+            <button
+              type="button"
+              onClick={() => {
+                reset();
+                setStep("account");
+              }}
+              className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-black/55 hover:text-black"
+            >
+              <RotateCcw className="size-4" /> Start over with a fresh business
+            </button>
           </div>
         );
     }
