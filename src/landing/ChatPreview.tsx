@@ -55,7 +55,7 @@ export function ChatPreview({ className, scene, autoplay = true, compact }: { cl
         <span className="size-2.5 rounded-full bg-[#28c840]" />
         <span className="ml-3 text-xs font-medium text-black/50">ChatGPT 5.2</span>
       </div>
-      <div className={cn("space-y-4 px-5 py-5", compact ? "min-h-[300px]" : "min-h-[420px]")}>
+      <div className={cn("space-y-4 overflow-hidden px-5 py-5", "h-[560px]")}>
         <AnimatePresence mode="wait">
           <motion.div key={s.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.25 }} className="space-y-4">
             <div className="flex justify-end">
