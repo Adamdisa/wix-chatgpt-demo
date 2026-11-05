@@ -2,15 +2,16 @@ import { Check, Copy, RefreshCw, ThumbsDown, ThumbsUp, Volume2 } from "lucide-re
 import { useEffect, useRef } from "react";
 
 import { cn } from "../lib/cn";
-import type { Message, Widget, WidgetAction } from "./engine/types";
+import type { DomainState, Message, Widget, WidgetAction } from "./engine/types";
 import { BarberBookingCard, BarbersCarousel, BookingConfirmedCard } from "./widgets/BarberWidgets";
 import { ConnectCard } from "./widgets/ConnectCard";
 import { CheckoutCard, EventDetailCard, EventsCarousel, TicketsCard } from "./widgets/EventWidgets";
 import { ReservationConfirmedCard, ReserveCard, RestaurantsCarousel } from "./widgets/RestaurantWidgets";
+import { SiteBuildingCard, SiteLiveMessage } from "./widgets/SiteWidgets";
 import { SuggestionChips } from "./widgets/SuggestionChips";
 import { WixMark } from "./WixMark";
 
-function WidgetHost({ widget, onAct, isLatest }: { widget: Widget; onAct: (a: WidgetAction) => void; isLatest: boolean }) {
+function WidgetHost({ widget, onAct, isLatest, domain }: { widget: Widget; onAct: (a: WidgetAction) => void; isLatest: boolean; domain: DomainState }) {
   switch (widget.kind) {
     case "connect":
       return <ConnectCard reason={widget.reason} onAct={onAct} />;
@@ -36,6 +37,12 @@ function WidgetHost({ widget, onAct, isLatest }: { widget: Widget; onAct: (a: Wi
       return <ReservationConfirmedCard {...widget} />;
     case "suggestions":
       return <SuggestionChips chips={widget.chips} onPick={(text) => onAct({ type: "chip", text })} />;
+    case "site-building":
+      return <SiteBuildingCard phase={widget.phase} note={widget.note} onAct={onAct} />;
+    case "site-live":
+      return <SiteLiveMessage domain={domain} onAct={onAct} />;
+    case "domain-pending":
+      return domain.stage === "connected" ? null : <SuggestionChips chips={["Check status"]} onPick={() => onAct({ type: "check-domain-status" })} />;
   }
 }
 
@@ -45,7 +52,7 @@ function ToolStatusLine({ label, done }: { label: string; done: boolean }) {
       <WixMark size={18} className={cn(!done && "animate-pulse")} />
       {done ? (
         <span className="flex items-center gap-1.5 text-secondary">
-          {label.replace(/^(Searching|Checking|Getting|Preparing|Booking|Reserving|Completing)/, (v) => ({ Searching: "Searched", Checking: "Checked", Getting: "Got", Preparing: "Prepared", Booking: "Booked", Reserving: "Reserved", Completing: "Completed" })[v] ?? v)}
+          {label.replace(/^(Searching|Checking|Getting|Preparing|Booking|Reserving|Completing|Planning)/, (v) => ({ Searching: "Searched", Checking: "Checked", Getting: "Got", Preparing: "Prepared", Booking: "Booked", Reserving: "Reserved", Completing: "Completed", Planning: "Planned" })[v] ?? v)}
           <Check className="size-3.5" />
         </span>
       ) : (
@@ -67,7 +74,7 @@ function AssistantActions() {
   );
 }
 
-export function MessageList({ messages, busy, onAct }: { messages: Message[]; busy: boolean; onAct: (a: WidgetAction) => void }) {
+export function MessageList({ messages, busy, onAct, domain }: { messages: Message[]; busy: boolean; onAct: (a: WidgetAction) => void; domain: DomainState }) {
   const endRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
@@ -99,7 +106,7 @@ export function MessageList({ messages, busy, onAct }: { messages: Message[]; bu
                     <span>Wix</span>
                   </div>
                 ) : null}
-                <WidgetHost widget={m.widget} onAct={onAct} isLatest={i === lastWidgetIndex} />
+                <WidgetHost widget={m.widget} onAct={onAct} isLatest={i === lastWidgetIndex} domain={domain} />
               </div>
             ) : null}
             {m.text && !m.status ? <AssistantActions /> : null}

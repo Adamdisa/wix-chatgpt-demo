@@ -25,6 +25,10 @@ export function detectIntent(raw: string): Intent {
         ? "evening"
         : (s.match(/\b(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\b/)?.[0] ?? undefined);
 
+  if (has(s, "create a site", "create a website", "build a site", "build a website", "make a site", "make a website", "website for", "site for my", "landing page", "web site for")) {
+    return { type: "site" };
+  }
+
   if (has(s, "barber", "haircut", "hair cut", "fade", "beard", "trim", "shave", "oren")) {
     return { type: "barber", when, time, city: has(s, "tel aviv") ? "Tel Aviv" : undefined };
   }
@@ -86,6 +90,8 @@ export function titleFor(text: string): string {
       return i.filter === "classical" ? "Classical concerts" : i.filter === "comedy" ? "Comedy tonight" : "Events this week";
     case "restaurant":
       return "Dinner reservation";
+    case "site":
+      return "Create bar website";
     default:
       return text.length > 36 ? `${text.slice(0, 36)}…` : text;
   }
