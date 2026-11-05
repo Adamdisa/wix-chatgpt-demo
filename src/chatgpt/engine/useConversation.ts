@@ -1,10 +1,9 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 
 import { BARBERS, EVENTS, RESTAURANTS } from "../../data/catalog";
-import { BEST_DOMAIN, SITE } from "../../data/site";
 import { formatMoney, sleep, uid } from "../../lib/cn";
 import { detectIntent, titleFor } from "./intent";
-import type { Conversation, DomainState, Handoff, Intent, Message, SitePaneState, Widget, WidgetAction } from "./types";
+import type { Conversation, Intent, Message, Widget, WidgetAction } from "./types";
 
 const todayISO = () => new Date().toISOString().slice(0, 10);
 const tomorrowISO = () => {
@@ -13,10 +12,7 @@ const tomorrowISO = () => {
   return d.toISOString().slice(0, 10);
 };
 
-export const SITE_PROMPT = "Create a site for my bar in Tel Aviv: 42 draft beers, a wine selection, good food and 2 pool tables";
-
 export const STARTER_PROMPTS = [
-  { icon: "globe", text: SITE_PROMPT },
   { icon: "scissors", text: "Book me a haircut in Tel Aviv tomorrow afternoon" },
   { icon: "ticket", text: "What's happening in Tel Aviv this weekend?" },
   { icon: "utensils", text: "Find a pizza place for 2 tonight near Rothschild" },
@@ -44,10 +40,6 @@ export function useConversation() {
   }, []);
   const [fullscreenEvent, setFullscreenEvent] = useState<string | null>(null);
   const [fullscreenMenu, setFullscreenMenu] = useState<string | null>(null);
-  // Site-creation flow: the custom-domain state is shared by the chat card and the side pane.
-  const [domain, setDomain] = useState<DomainState>({ stage: "idle" });
-  const [handoff, setHandoff] = useState<Handoff>(null);
-  const [sitePane, setSitePane] = useState<SitePaneState>({ open: false, full: false });
 
   const pendingIntent = useRef<Intent | null>(null);
   const runId = useRef(0);
@@ -155,36 +147,6 @@ export function useConversation() {
             widget: { kind: "restaurants", ids: RESTAURANTS.map((r) => r.id) },
           });
         }
-        case "site": {
-          let statusId = "";
-          let buildId = "";
-          const label = "Planning your site with Wix";
-          return script([
-            [500, () => (statusId = push(convId, { role: "assistant", status: { label, done: false } }))],
-            [
-              1600,
-              () => {
-                patch(convId, statusId, { status: { label, done: true } });
-                buildId = push(convId, {
-                  role: "assistant",
-                  app: "wix",
-                  text: "I'll build a first version with a dark, lively Tel Aviv bar feel: the 42 taps, wine and food, the two pool tables, and clear visit info.",
-                  widget: { kind: "site-building", phase: "planning" },
-                });
-              },
-            ],
-            [2400, () => patch(convId, buildId, { widget: { kind: "site-building", phase: "building", note: "Laying out the 42 taps menu and the billiards section." } })],
-            [2400, () => patch(convId, buildId, { widget: { kind: "site-building", phase: "building", note: "Publishing to your free Wix address." } })],
-            [
-              1800,
-              () => {
-                patch(convId, buildId, { widget: { kind: "site-building", phase: "done" }, text: undefined, app: undefined });
-                push(convId, { role: "assistant", widget: { kind: "site-live" } });
-                setSitePane({ open: true, full: false });
-              },
-            ],
-          ]);
-        }
         default:
           return script([
             [
@@ -210,7 +172,7 @@ export function useConversation() {
       push(convId, { role: "user", text, fromWidget: opts?.fromWidget });
 
       const intent = detectIntent(text);
-      const needsWix = intent.type === "barber" || intent.type === "events" || intent.type === "restaurant" || intent.type === "site";
+      const needsWix = intent.type === "barber" || intent.type === "events" || intent.type === "restaurant";
 
       if (/\bconnect\b.*\bwix\b/i.test(text) && !connected) {
         pendingIntent.current = { type: "unknown" };
@@ -244,13 +206,7 @@ export function useConversation() {
                   kind: "connect",
                   app: "wix",
                   reason:
-                    intent.type === "barber"
-                      ? "to search barbers and book appointments"
-                      : intent.type === "events"
-                        ? "to search events and buy tickets"
-                        : intent.type === "site"
-                          ? "to build and publish a website on your Wix account"
-                          : "to search restaurants and reserve tables",
+                    intent.type === "barber" ? "to search barbers and book appointments" : intent.type === "events" ? "to search events and buy tickets" : "to search restaurants and reserve tables",
                 },
               }),
           ],
@@ -365,89 +321,32 @@ export function useConversation() {
             widget: { kind: "reservation-confirmed", restaurantId: r.id, dateISO: action.dateISO, time: action.time, party: action.party },
           }, 1300);
         }
-        case "get-domain":
-          setDomain((d) => ({ ...d, domain: action.domain, own: false }));
-          setHandoff({ step: "leave", domain: action.domain, connect: false });
-          return;
-        case "connect-own-domain":
-          setHandoff({ step: "leave", domain: "", connect: true });
-          return;
-        case "handoff": {
-          if (!handoff) return;
-          if (action.step === "cancel") return setHandoff(null);
-          if (action.step === "open") return setHandoff({ ...handoff, step: "wix" });
-          if (action.step === "complete") return setHandoff({ ...handoff, step: "done", domain: handoff.connect ? action.ownDomain || "lilienblumbar.co.il" : handoff.domain });
-          const d = handoff.domain;
-          const own = handoff.connect;
-          setHandoff(null);
-          setDomain({ stage: "pending", domain: d, own });
-          return script([
-            [
-              400,
-              () =>
-                push(convId, {
-                  role: "assistant",
-                  text: own
-                    ? `${d} is being connected to ${SITE.name}. This usually takes a few minutes, up to 48 hours everywhere; the free address keeps working meanwhile.`
-                    : `You now own ${d}. Wix is connecting it to ${SITE.name}; this usually takes a few minutes, up to 48 hours everywhere. The free address keeps working meanwhile.`,
-                  widget: { kind: "domain-pending" },
-                }),
-            ],
-          ]);
-        }
-        case "check-domain-status": {
-          const d = domain.domain ?? BEST_DOMAIN;
-          const label = "Checking domain status on Wix";
-          let statusId = "";
-          return script([
-            [400, () => (statusId = push(convId, { role: "assistant", status: { label, done: false } }))],
-            [
-              1200,
-              () => {
-                patch(convId, statusId, { status: { label, done: true } });
-                setDomain((s) => ({ ...s, stage: "connected" }));
-                push(convId, { role: "assistant", text: `${d} now points to ${SITE.name}. I'll use it in links from now on; the free address keeps working too.` });
-              },
-            ],
-          ]);
-        }
-        case "site-pane":
-          setSitePane((p) => ({ open: action.open, full: action.full ?? (action.open ? p.full : false) }));
-          return;
         default:
           return;
       }
     },
-    [domain.domain, handoff, mutate, patch, push, runIntent, script, send, toolTurn],
+    [mutate, patch, push, runIntent, script, send, toolTurn],
   );
 
   /* ----------------------------------------------------- navigation */
-
-  const resetSite = useCallback(() => {
-    setSitePane({ open: false, full: false });
-    setHandoff(null);
-    setDomain({ stage: "idle" });
-  }, []);
 
   const newChat = useCallback(() => {
     runId.current++;
     setBusy(false);
     setFullscreenEvent(null);
-    resetSite();
     pendingIntent.current = null;
     setActiveId(null);
     activeRef.current = null;
-  }, [resetSite]);
+  }, []);
 
   const switchChat = useCallback((id: string) => {
     runId.current++;
     setBusy(false);
     setFullscreenEvent(null);
     setFullscreenMenu(null);
-    resetSite();
     setActiveId(id);
     activeRef.current = id;
-  }, [resetSite]);
+  }, []);
 
   return {
     conversations,
@@ -457,9 +356,6 @@ export function useConversation() {
     connected,
     fullscreenEvent,
     fullscreenMenu,
-    domain,
-    handoff,
-    sitePane,
     closeFullscreen: () => {
       setFullscreenEvent(null);
       setFullscreenMenu(null);

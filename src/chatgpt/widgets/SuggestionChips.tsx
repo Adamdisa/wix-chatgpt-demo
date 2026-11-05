@@ -1,8 +1,8 @@
-import { Globe, Music, Scissors, Ticket, Utensils } from "lucide-react";
+import { Music, Scissors, Ticket, Utensils } from "lucide-react";
 
 import { STARTER_PROMPTS } from "../engine/useConversation";
 
-const ICONS = { scissors: Scissors, ticket: Ticket, utensils: Utensils, music: Music, globe: Globe } as const;
+const ICONS = { scissors: Scissors, ticket: Ticket, utensils: Utensils, music: Music } as const;
 
 export function SuggestionChips({ chips, onPick, large }: { chips: string[]; onPick: (text: string) => void; large?: boolean }) {
   return (

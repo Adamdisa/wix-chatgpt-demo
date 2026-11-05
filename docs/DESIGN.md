@@ -29,15 +29,6 @@ Show two sides of one story:
   composer visible; system font stack and system greys, brand colour only on accents and the
   primary button; ChatGPT appends the app name and logo above the widget, the widget itself
   carries no logo; first use shows a connect/consent step before any data is shown.
-- **Site creation + domain (added 2026-11-05):** "Create a site for my bar…" builds a headless Wix
-  site (progress card → "Published on Wix" closing message) and opens the "Wix site" side pane,
-  a copy of ChatGPT's app viewer with our widget header. Two surfaces offer a custom domain with
-  one shared state: an inline domain card in the closing message (free address, three available
-  names, check a name, connect an owned domain) and a browser-style address bar in the pane header
-  with a "Get lilienblum42.com" chip. Get → "Continue on Wix" dialog → mock Wix checkout tab →
-  back → "Setting up…" + Check status → Connected. Site name, free URL and preview come from a real
-  run; the plugin never shows a price. Deep link: `/domain`. Source mockup and spec:
-  claude.ai/artifact/FwU42zaPYwrbFyb57HLUD7.
 - **Flows in the demo:** barber booking (services → slot → confirm), events (carousel →
   fullscreen detail → checkout card → tickets), restaurant reservation (carousel → party size
   and time → confirm). Generic prompts get a short reply plus suggestion chips.
